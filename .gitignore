@@ -1,0 +1,56 @@
+# Build outputs
+*.sys
+*.exe
+*.dll
+*.lib
+*.obj
+*.pch
+*.pdb
+*.ilk
+*.exp
+*.map
+
+# Visual Studio
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.vcxproj.filters
+*.vcxproj.user
+ipch/
+*.aps
+*.ncb
+*.opensdf
+*.sdf
+*.cachefile
+
+# Build directories
+Debug/
+Release/
+x64/
+x86/
+ARM/
+ARM64/
+build/
+out/
+
+# Driver build
+*.log
+*.err
+
+# IDEs
+.idea/
+*.swp
+*.swo
+*~
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Temp files
+*.tmp
+*.temp
