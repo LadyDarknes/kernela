@@ -1,6 +1,7 @@
 #include <ntddk.h>
 #include <ntimage.h>
 #include <ntstrsafe.h>
+#include "keys.h"
 
 typedef struct _KBD_DATA {
     USHORT UnitId;
@@ -105,17 +106,19 @@ static ULONG_PTR ScanModule(ULONG_PTR Base, const UCHAR* Pat, const char* Mask) 
 }
 
 VOID OnKey(PDEVICE_OBJECT Device, PKBD_DATA Start, PKBD_DATA End, PULONG Consumed) {
-    LONG Seen = InterlockedIncrement(&g_Hits);
-    if (Seen <= 8) {
-        DbgPrint("[KBD] Hit #%ld Dev=%p Start=%p End=%p\n", Seen, Device, Start, End);
-    }
     /*
         https://users.utcluj.ro/~baruch/sie/labor/PS2/Scan_Codes_Set_1.htm
 		You can find the make code of each key in this table and the flag is the key state (UP or DOWN)
     */ 
     for (PKBD_DATA Cur = Start; Cur < End; Cur++) {
         const char* State = (Cur->Flags & 1) ? "UP" : "DOWN";
-        DbgPrint("[KBD] Code: 0x%X | %s\n", Cur->MakeCode, State);
+        const char* KeyName = ScanCodes::GetKey(Cur->MakeCode);
+
+        if (Cur->MakeCode == ScanCodes::F5 && !(Cur->Flags & 1)) {
+            DbgPrint("F5 detected!!!!\n");
+        }
+
+        DbgPrint("[KBD] Key: %s (0x%X) | %s\n", KeyName, Cur->MakeCode, State);
     }
 
     KBD_CALLBACK Old = GetOldCb(Device);
