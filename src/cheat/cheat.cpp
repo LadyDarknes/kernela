@@ -1,5 +1,5 @@
-#include "common.h"
-#include "offsets.h"
+#include "../utils/common.h"
+#include "../utils/offsets.h"
 
 extern "C" void UpdateEntities();
 extern "C" void mouse_move(long x, long y, unsigned short button_flags);

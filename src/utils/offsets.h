@@ -1,9 +1,9 @@
 #pragma once
 
-#include "offsets/animationsystem_dll.hpp"
-#include "offsets/client_dll.hpp"
-#include "offsets/engine2_dll.hpp"
-#include "offsets/offsets.hpp"
+#include "../../offsets/animationsystem_dll.hpp"
+#include "../../offsets/client_dll.hpp"
+#include "../../offsets/engine2_dll.hpp"
+#include "../../offsets/offsets.hpp"
 
 namespace Offsets {
 inline constexpr auto &dwEntityList =

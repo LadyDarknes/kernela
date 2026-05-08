@@ -1,5 +1,5 @@
-#include "common.h"
-#include "offsets.h"
+#include "../utils/common.h"
+#include "../utils/offsets.h"
 #include <intrin.h>
 
 namespace entities {

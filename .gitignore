@@ -9,6 +9,12 @@
 x64/
 Debug/
 Release/
+Debug/
+Intermediate/
+[Xx]64/
+[Xx]86/
+
+
 
 # Other project-specific exclusions
 kernela/
