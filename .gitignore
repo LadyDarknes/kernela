@@ -1,0 +1,14 @@
+# Visual Studio files
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.sln
+.vs/
+
+# Build artifacts
+x64/
+Debug/
+Release/
+
+# Other project-specific exclusions
+kernela/

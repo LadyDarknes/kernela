@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 
 namespace cs2_dumper {
     namespace schemas {

@@ -1,5 +1,5 @@
 .code
-PUBLİC MouseClassServiceCallbackTrick
+PUBLIC MouseClassServiceCallbackTrick
 MouseClassServiceCallbackTrick proc
 
     push rbp

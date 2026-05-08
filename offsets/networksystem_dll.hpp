@@ -3,8 +3,8 @@
 
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
+#include <stddef.h>
+#include <stdint.h>
 
 namespace cs2_dumper {
     namespace schemas {
@@ -15,7 +15,7 @@ namespace cs2_dumper {
             // Parent: None
             // Field count: 1
             namespace ChangeAccessorFieldPathIndex_t {
-                constexpr std::ptrdiff_t m_Value = 0x0; // int32
+                constexpr ptrdiff_t m_Value = 0x0; // int32
             }
         }
     }
