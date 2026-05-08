@@ -94,6 +94,6 @@ extern "C" void CheatLoop(PVOID sc) {
 
     LARGE_INTEGER interval;
     interval.QuadPart = -100000; // 10ms
-    NtDelayExecution(FALSE, &interval);
+    KeDelayExecutionThread(KernelMode, FALSE, &interval);
   }
 }

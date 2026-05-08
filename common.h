@@ -92,6 +92,8 @@ BOOL ReadMemory(ULONG_PTR address, PVOID buffer, SIZE_T size);
 BOOL mouse_open(void);
 void mouse_move(long x, long y, unsigned short button_flags);
 
+NTSTATUS InitializeKeyboard(PDRIVER_OBJECT DriverObject);
+
 #define OFFSET_OF(type, member) ((ULONG_PTR)(&((type *)0)->member))
 
 // System functions
