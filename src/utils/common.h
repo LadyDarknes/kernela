@@ -120,19 +120,20 @@ private:
   size_t _size;
   size_t _capacity;
 
-  void reserve(size_t new_cap) {
+  bool grow(size_t new_cap) {
     if (new_cap <= _capacity)
-      return;
+      return true;
     T *new_data =
         (T *)ExAllocatePool2(POOL_FLAG_PAGED, new_cap * sizeof(T), 'tceV');
     if (!new_data)
-      return;
+      return false;
     if (data) {
       RtlCopyMemory(new_data, data, _size * sizeof(T));
       ExFreePoolWithTag(data, 'tceV');
     }
     data = new_data;
     _capacity = new_cap;
+    return true;
   }
 
 public:
@@ -142,9 +143,11 @@ public:
       ExFreePoolWithTag(data, 'tceV');
   }
 
+  bool reserve(size_t new_cap) { return grow(new_cap); }
+
   void push_back(const T &value) {
     if (_size >= _capacity)
-      reserve(_capacity == 0 ? 8 : _capacity * 2);
+      grow(_capacity == 0 ? 8 : _capacity * 2);
     if (data)
       data[_size++] = value;
   }

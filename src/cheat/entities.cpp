@@ -2,118 +2,140 @@
 #include "../utils/offsets.h"
 #include <intrin.h>
 
+#ifndef HEADONLYFP
+#define HEADONLYFP 0
+#endif
+
 namespace entities {
-SimpleVector<PLAYER_DATA> *players_ptr = nullptr;
-PLAYER_DATA local_player;
-int count = 0;
+    SimpleVector<PLAYER_DATA> *playersPtr = nullptr;
+    PLAYER_DATA localPlayer;
+    int count = 0;
+    constexpr size_t STRIDE = 0x70;
+    constexpr int headBone = 6;
+    BYTE ctrlSnap[MAX_ENTITIES * STRIDE];
+    BYTE boneSnap[MAX_BONES * 32];
 
-extern "C" void UpdateEntities() {
-  if (!g_client_base || !cs2) {
-    return;
-  }
-
-  if (!entities::players_ptr) {
-    entities::players_ptr = (SimpleVector<PLAYER_DATA> *)ExAllocatePool2(POOL_FLAG_PAGED, sizeof(SimpleVector<PLAYER_DATA>), 'tceV');
-    if (entities::players_ptr) {
-      new (entities::players_ptr) SimpleVector<PLAYER_DATA>();
-    }
-  }
-
-  if (!entities::players_ptr) {
-    return;
-  }
-  auto &players = *entities::players_ptr;
-
-  ULONG_PTR entity_list = R<ULONG_PTR>(g_client_base + Offsets::dwEntityList);
-  ULONG_PTR local_pawn = R<ULONG_PTR>(g_client_base + Offsets::dwLocalPlayerPawn);
-  ULONG_PTR local_controller = R<ULONG_PTR>(g_client_base + Offsets::dwLocalPlayerController);
-
-  if (!entity_list)
-    return;
-
-  entities::local_player.pawn_address = local_pawn; // local player pawn
-  entities::local_player.team = R<int>(local_pawn + Offsets::BaseEntity::m_iTeamNum);
-  entities::local_player.eye_angles = R<QA>(g_client_base + Offsets::dwViewAngles);
-  entities::local_player.shots_fired = R<int>(local_pawn + Offsets::Player::m_iShotsFired);
-  entities::local_player.sensitivity = R<float>(local_pawn + Offsets::PlayerPawnBase::m_flMouseSensitivity);
-  
-  ULONG_PTR local_scene_node = R<ULONG_PTR>(local_pawn + Offsets::BaseEntity::m_pGameSceneNode);
-  if (local_scene_node) {
-    entities::local_player.origin = R<V3>(local_scene_node + Offsets::SceneNode::m_vecAbsOrigin);
-  }
-
-  V3 v_off = R<V3>(local_pawn + Offsets::BaseEntity::m_vecViewOffset);
-  entities::local_player.origin.x += v_off.x;
-  entities::local_player.origin.y += v_off.y;
-  entities::local_player.origin.z += v_off.z;
-
-  ULONG_PTR punch_svc = R<ULONG_PTR>(local_pawn + Offsets::Player::m_pAimPunchServices);
-  if (punch_svc) {
-    entities::local_player.punch_angles = R<QA>(punch_svc + 0x40);
-  }
-
-  players.clear();
-  constexpr size_t STRIDE = 0x70;
-
-  ULONG_PTR controller_page = R<ULONG_PTR>(entity_list + 0x10);
-  if (!controller_page) return;
-
-  for (int i = 1; i < 64; ++i) {
-    ULONG_PTR controller = R<ULONG_PTR>(controller_page + i * STRIDE);
-    if (!controller) continue;
-    if (controller == local_controller) continue;
-
-    uint32_t pawn_handle = R<uint32_t>(controller + 0x904);
-    if (!pawn_handle || pawn_handle == 0xFFFFFFFF) {
-      pawn_handle = R<uint32_t>(controller + Offsets::Controller::m_pControllerPawn);
-    if (!pawn_handle || pawn_handle == 0xFFFFFFFF) continue;
+    template <typename T>
+    __forceinline bool ReadValue(ULONG_PTR address, T& out) {
+        return ReadMemory(address, &out, sizeof(T)) != FALSE;
     }
 
-    uint32_t pawn_index = pawn_handle & 0x7FFF;
-    ULONG_PTR pawn_page_ptr = R<ULONG_PTR>(entity_list + 0x10 + (0x8 * (pawn_index >> 9)));
-    if (!pawn_page_ptr) continue;
+    __forceinline void WPC(SimpleVector<PLAYER_DATA>& players) {
+        players.reserve(MAX_ENTITIES);
+        players.clear();
+    }
 
-    ULONG_PTR pawn = R<ULONG_PTR>(pawn_page_ptr + (pawn_index & 0x1FF) * STRIDE);
-    if (!pawn || pawn == local_pawn) continue;
+    extern "C" void UpdateEntities() {
+        if (!g_client_base || !cs2) return;
 
-    int health = R<int>(pawn + Offsets::BaseEntity::m_iHealth);
-    if (health <= 0 || health > 100) continue;
-
-    int team = (int)R<uint8_t>(pawn + Offsets::BaseEntity::m_iTeamNum);
-
-    PLAYER_DATA p{};
-    p.valid = TRUE;
-    p.health = health;
-    p.team = team;
-    p.pawn_address = pawn;
-    p.controller_address = controller;
-    p.origin = R<V3>(pawn + 0x1390);
-
-    ULONG_PTR scene_node = R<ULONG_PTR>(pawn + Offsets::BaseEntity::m_pGameSceneNode);// vts 
-    if (scene_node) {
-      ULONG_PTR bone_array = R<ULONG_PTR>(scene_node + 0x1D0);
-      if (bone_array) {
-        p.head_pos = R<V3>(bone_array + 6 * 32);
-
-        for (int j = 0; j < MAX_BONES; j++) {
-          p.bones[j].Pos = R<V3>(bone_array + j * 32);
+        if (!entities::playersPtr) {
+            entities::playersPtr = (SimpleVector<PLAYER_DATA> *)ExAllocatePool2(POOL_FLAG_PAGED, sizeof(SimpleVector<PLAYER_DATA>), 'tceV');
+            if (entities::playersPtr) {
+                new (entities::playersPtr) SimpleVector<PLAYER_DATA>();
+                WPC(*entities::playersPtr);
+            }
         }
-      } else {
-        p.head_pos = p.origin;
-        p.head_pos.z += 65.0f;
-      }
-    } else {
-      p.head_pos = p.origin;
-      p.head_pos.z += 65.0f;
+        if (!entities::playersPtr) return;
+        auto& players = *entities::playersPtr;
+
+        ULONG_PTR entList = 0;
+        ULONG_PTR localPawn = 0;
+        ULONG_PTR localCtrl = 0;
+        ReadValue(g_client_base + Offsets::dwEntityList, entList);
+        ReadValue(g_client_base + Offsets::dwLocalPlayerPawn, localPawn);
+        ReadValue(g_client_base + Offsets::dwLocalPlayerController, localCtrl);
+        if (!entList) return;
+
+        entities::localPlayer.pawn_address = localPawn;
+        ReadValue(g_client_base + Offsets::dwViewAngles, entities::localPlayer.eye_angles);
+        ULONG_PTR localNode = 0;
+        ReadValue(localPawn + Offsets::BaseEntity::m_pGameSceneNode, localNode);
+        if (localNode) {
+            V3 viewOff{};
+            ReadValue(localNode + Offsets::SceneNode::m_vecAbsOrigin, entities::localPlayer.origin);
+            ReadValue(localPawn + Offsets::BaseEntity::m_vecViewOffset, viewOff);
+            entities::localPlayer.origin.x += viewOff.x; entities::localPlayer.origin.y += viewOff.y; entities::localPlayer.origin.z += viewOff.z;
+        }
+
+        players.clear();
+        ULONG_PTR ctrlPage = 0;
+        ReadValue(entList + 0x10, ctrlPage);
+        if (!ctrlPage) {  return; }
+        if (!ReadMemory(ctrlPage, ctrlSnap, sizeof(ctrlSnap))) { return; }
+
+        ULONG_PTR pawnPages[64] = {};
+        bool pawnPageOk[64] = {};
+
+        for (int i = 1; i < MAX_ENTITIES; ++i) {
+            ULONG_PTR controller = 0;
+            RtlCopyMemory(&controller, ctrlSnap + i * STRIDE, sizeof(controller));
+            if (!controller || controller == localCtrl) continue;
+
+            uint32_t pawnHandle = 0;
+            ReadValue(controller + Offsets::Controller::m_pControllerPawn, pawnHandle);
+            if (!pawnHandle || pawnHandle == 0xFFFFFFFF) continue;
+
+            uint32_t pawnIdx = pawnHandle & 0x7FFF;
+            uint32_t pawnPageIdx = pawnIdx >> 9;
+            if (pawnPageIdx >= 64) continue;
+            if (!pawnPageOk[pawnPageIdx]) {
+                ReadValue(entList + 0x10 + (0x8 * pawnPageIdx), pawnPages[pawnPageIdx]);
+                pawnPageOk[pawnPageIdx] = true;
+            }
+            ULONG_PTR pawnPage = pawnPages[pawnPageIdx];
+            if (!pawnPage) continue;
+
+            ULONG_PTR pawn = 0;
+            ReadValue(pawnPage + (pawnIdx & 0x1FF) * STRIDE, pawn);
+            if (!pawn || pawn == localPawn) continue;
+
+            PLAYER_DATA p{};
+            p.valid = TRUE;
+            p.pawn_address = pawn;
+            p.controller_address = controller;
+            ReadValue(pawn + 0x1390, p.origin);
+
+            ULONG_PTR sceneNode = 0;
+            ReadValue(pawn + Offsets::BaseEntity::m_pGameSceneNode, sceneNode);
+            if (sceneNode) {
+                ULONG_PTR boneArr = 0;
+                ReadValue(sceneNode + Offsets::BONE_MATRIX_OFFSET, boneArr);
+                if (boneArr) {
+#if HEADONLYFP
+                    ReadValue(boneArr + headBone * 32, p.head_pos);
+                    p.bones[headBone].Pos = p.head_pos;
+#else
+                    if (ReadMemory(boneArr, boneSnap, sizeof(boneSnap))) {
+                        for (int j = 0; j < MAX_BONES; j++) {
+                            RtlCopyMemory(&p.bones[j].Pos, boneSnap + j * 32, sizeof(V3));
+                        }
+                        p.head_pos = p.bones[headBone].Pos;
+                    }
+#endif
+                }
+            }
+            players.push_back(p);
+        }
+        entities::count = (int)players.size();
     }
-    ULONG_PTR name_ptr =
-        controller + Offsets::Controller::m_sSanitizedPlayerName;
-    ReadMemory(name_ptr, p.name, 31 * sizeof(wchar_t));
-    p.name[31] = 0;
 
-    players.push_back(p);
-  }
+    extern "C" void UpdatePlist() {
+        if (!entities::playersPtr || entities::count == 0) return;
+        auto& players = *entities::playersPtr;
 
-  entities::count = (int)players.size();
-}
+        ULONG_PTR lp = entities::localPlayer.pawn_address;
+        if (lp) {
+            entities::localPlayer.team = R<int>(lp + Offsets::BaseEntity::m_iTeamNum);
+            entities::localPlayer.shots_fired = R<int>(lp + Offsets::Player::m_iShotsFired);
+        }
+        for (int i = 0; i < (int)players.size(); ++i) {
+            PLAYER_DATA& p = players[i];
+
+            p.health = R<int>(p.pawn_address + Offsets::BaseEntity::m_iHealth);
+            p.team = (int)R<uint8_t>(p.pawn_address + Offsets::BaseEntity::m_iTeamNum);
+
+            ULONG_PTR namePtr = p.controller_address + Offsets::Controller::m_sSanitizedPlayerName;
+            ReadMemory(namePtr, p.name, 31 * sizeof(wchar_t));
+        }
+    }
 }
