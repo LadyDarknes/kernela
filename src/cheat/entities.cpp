@@ -33,11 +33,25 @@ extern "C" void UpdateEntities() {
 
   entities::local_player.pawn_address = local_pawn; // local player pawn
   entities::local_player.team = R<int>(local_pawn + Offsets::BaseEntity::m_iTeamNum);
-
+  entities::local_player.eye_angles = R<QA>(g_client_base + Offsets::dwViewAngles);
+  entities::local_player.shots_fired = R<int>(local_pawn + Offsets::Player::m_iShotsFired);
+  entities::local_player.sensitivity = R<float>(local_pawn + Offsets::PlayerPawnBase::m_flMouseSensitivity);
+  
   ULONG_PTR local_scene_node = R<ULONG_PTR>(local_pawn + Offsets::BaseEntity::m_pGameSceneNode);
   if (local_scene_node) {
     entities::local_player.origin = R<V3>(local_scene_node + Offsets::SceneNode::m_vecAbsOrigin);
   }
+
+  V3 v_off = R<V3>(local_pawn + Offsets::BaseEntity::m_vecViewOffset);
+  entities::local_player.origin.x += v_off.x;
+  entities::local_player.origin.y += v_off.y;
+  entities::local_player.origin.z += v_off.z;
+
+  ULONG_PTR punch_svc = R<ULONG_PTR>(local_pawn + Offsets::Player::m_pAimPunchServices);
+  if (punch_svc) {
+    entities::local_player.punch_angles = R<QA>(punch_svc + 0x40);
+  }
+
   players.clear();
   constexpr size_t STRIDE = 0x70;
 
@@ -52,7 +66,7 @@ extern "C" void UpdateEntities() {
     uint32_t pawn_handle = R<uint32_t>(controller + 0x904);
     if (!pawn_handle || pawn_handle == 0xFFFFFFFF) {
       pawn_handle = R<uint32_t>(controller + Offsets::Controller::m_pControllerPawn);
-      if (!pawn_handle || pawn_handle == 0xFFFFFFFF) continue;
+    if (!pawn_handle || pawn_handle == 0xFFFFFFFF) continue;
     }
 
     uint32_t pawn_index = pawn_handle & 0x7FFF;

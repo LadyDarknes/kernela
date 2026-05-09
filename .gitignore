@@ -14,7 +14,7 @@ Intermediate/
 [Xx]64/
 [Xx]86/
 
-
+src/context.py
 
 # Other project-specific exclusions
 kernela/

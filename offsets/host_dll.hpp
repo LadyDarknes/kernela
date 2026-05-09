@@ -1,10 +1,10 @@
 // Generated using https://github.com/a2x/cs2-dumper
-// 2026-05-02 22:51:30.129229100 UTC
+// 2026-05-08 11:43:49.715792300 UTC
 
 #pragma once
 
-#include <stddef.h>
-#include <stdint.h>
+#include <cstddef>
+#include <cstdint>
 
 namespace cs2_dumper {
     namespace schemas {
@@ -15,12 +15,12 @@ namespace cs2_dumper {
             // Parent: None
             // Field count: 1
             namespace EmptyTestScript {
-                constexpr ptrdiff_t m_hTest = 0x10; // CAnimScriptParam<float32>
+                constexpr std::ptrdiff_t m_hTest = 0x10; // CAnimScriptParam<float32>
             }
             // Parent: None
             // Field count: 1
             namespace CAnimScriptBase {
-                constexpr ptrdiff_t m_bIsValid = 0x8; // bool
+                constexpr std::ptrdiff_t m_bIsValid = 0x8; // bool
             }
         }
     }

@@ -58,6 +58,10 @@ typedef struct _PLAYER_DATA {
   ULONG_PTR pawn_address;
   ULONG_PTR controller_address;
   wchar_t name[32];
+  QA eye_angles;
+  QA punch_angles;
+  int shots_fired;
+  float sensitivity;
 } PLAYER_DATA;
 
 typedef struct _MOUSE_INPUT_DATA {

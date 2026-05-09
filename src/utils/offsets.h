@@ -1,5 +1,11 @@
 #pragma once
 
+#include <stddef.h>
+
+namespace std {
+using ::ptrdiff_t;
+}
+
 #include "../../offsets/animationsystem_dll.hpp"
 #include "../../offsets/client_dll.hpp"
 #include "../../offsets/engine2_dll.hpp"
@@ -61,6 +67,8 @@ inline constexpr auto m_bTakesDamage =
     cs2_dumper::schemas::client_dll::C_BaseEntity::m_bTakesDamage; // 0x355
 inline constexpr auto m_pGameSceneNode =
     cs2_dumper::schemas::client_dll::C_BaseEntity::m_pGameSceneNode; // 0x330
+inline constexpr auto m_vecViewOffset =
+    cs2_dumper::schemas::client_dll::C_BaseModelEntity::m_vecViewOffset; // 0xE70
 } // namespace BaseEntity
 
 namespace PlayerPawnBase {
@@ -68,6 +76,10 @@ inline constexpr auto m_flFlashDuration = cs2_dumper::schemas::client_dll::
     C_CSPlayerPawnBase::m_flFlashDuration; // 0x1400
 inline constexpr auto m_flFlashMaxAlpha =
     cs2_dumper::schemas::client_dll::C_CSPlayerPawnBase::m_flFlashMaxAlpha;
+inline constexpr auto m_vOldOrigin =
+    cs2_dumper::schemas::client_dll::C_BasePlayerPawn::m_vOldOrigin;
+inline constexpr auto m_flMouseSensitivity =
+    cs2_dumper::schemas::client_dll::C_BasePlayerPawn::m_flMouseSensitivity; // 0x138C
 } // namespace PlayerPawnBase
 
 namespace Player {
@@ -93,6 +105,8 @@ inline constexpr auto m_bInBuyZone =
     cs2_dumper::schemas::client_dll::C_CSPlayerPawn::m_bInBuyZone;
 inline constexpr auto m_bInBombZone =
     cs2_dumper::schemas::client_dll::C_CSPlayerPawn::m_bInBombZone;
+inline constexpr auto m_pAimPunchServices =
+    cs2_dumper::schemas::client_dll::C_CSPlayerPawn::m_pAimPunchServices; // 0x1490
 } // namespace Player
 namespace SceneNode {
 inline constexpr auto m_vecOrigin =
