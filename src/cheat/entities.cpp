@@ -120,7 +120,7 @@ namespace entities {
     }
 
     extern "C" void UpdatePlist() {
-        if (!entities::playersPtr || entities::count == 0) return;
+        if (!entities::playersPtr) return;
         auto& players = *entities::playersPtr;
 
         ULONG_PTR lp = entities::localPlayer.pawn_address;

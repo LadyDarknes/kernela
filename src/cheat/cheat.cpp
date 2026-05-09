@@ -1,10 +1,9 @@
 #include "../utils/common.h"
 #include "../utils/offsets.h"
 
-extern "C" void UpdateEntities();
 extern "C" void mouse_move(long x, long y, unsigned short button_flags);
 extern BOOLEAN g_Aim;
-
+extern BOOLEAN g_Unload;
 static __forceinline void Sleep(LONGLONG ms) {
     LARGE_INTEGER interval;
     interval.QuadPart = -(ms * 10000);
@@ -93,6 +92,11 @@ extern "C" void CheatLoop(PVOID sc) {
   DbgPrint("[+] Cheat loop started\n");
   int plistDelay = 0;
   while (TRUE) {
+	  if (g_Unload){
+      while (true) {
+		  Sleep(100000000);
+	  }
+	}
     if (!cs2) {
       InitProcessAccess();
       Sleep(10);
