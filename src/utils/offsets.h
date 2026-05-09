@@ -165,7 +165,7 @@ namespace EntityIdentity {
 inline constexpr auto m_designerName =
     cs2_dumper::schemas::engine2_dll::CEntityIdentity::m_designerName;
 }
-inline constexpr ptrdiff_t BONE_MATRIX_OFFSET = 0x1C0; // m_pBoneTransform
+inline constexpr ptrdiff_t BONE_MATRIX_OFFSET = 0x1D0; // m_pBoneTransform
 
 } // namespace Offsets
 

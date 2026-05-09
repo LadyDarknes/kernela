@@ -11,7 +11,7 @@ namespace entities {
     PLAYER_DATA localPlayer;
     int count = 0;
     constexpr size_t STRIDE = 0x70;
-    constexpr int headBone = 6;
+    constexpr int headBone = 7;
     BYTE ctrlSnap[MAX_ENTITIES * STRIDE];
     BYTE boneSnap[MAX_BONES * 32];
 
