@@ -3,11 +3,11 @@ tags: [project-root, kernela]
 status: active
 ---
 
-- [ ] [Aimbot_Target_Fix]
-- [ ] [Mouse Move: (View Angles)]
-- [ ] [Recoil_Control]
-- [ ] [Head_Y_Pos_Fix]
-- [ ] [Visible Check)]
+- [x] [Aimbot_Target_Fix]
+- [x] [Mouse_Move_Calculationn]
+- [ ] [(Recoil Control)]
+- [x] [Head_Y_Pos_Fix]
+- [ ] [(Visible Check)]
 - [ ] [Triggerbot]
-- [ ] [Memory_Thread_Tree_Fix]
+- [x] [Memory_Thread_Tree_Fix]
 
