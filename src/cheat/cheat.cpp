@@ -64,7 +64,7 @@ void RunAimbot() {
 
     for (const auto& p : players) {
         if (p.team == entities::localPlayer.team) continue;
-        if (p.health <= 0) continue;
+
         V2 screen_pos;
         if (W2S(p.head_pos, vm, screen_pos)) {
             float dx = screen_pos.x - screen_center.x;
