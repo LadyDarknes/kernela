@@ -11,12 +11,12 @@ static __forceinline void Sleep(LONGLONG ms) {
 }
 
 namespace entities {
-extern SimpleVector<PLAYER_DATA> *playersPtr;
-extern PLAYER_DATA localPlayer;
-extern int count;
-extern "C" void UpdateEntities();
-extern "C" void UpdatePlist();
-} 
+    extern SimpleVector<PLAYER_DATA>* playersPtr;
+    extern PLAYER_DATA localPlayer;
+    extern int count;
+    extern "C" void UpdateEntities();
+    extern "C" void UpdatePlist();
+}
 
 bool W2S(const V3& pos, const view_matrix_t& matrix, V2& out) {
     if (pos.x == 0 && pos.y == 0 && pos.z == 0) return false;
@@ -64,7 +64,7 @@ void RunAimbot() {
 
     for (const auto& p : players) {
         if (p.team == entities::localPlayer.team) continue;
-
+        if (p.health <= 0) continue;
         V2 screen_pos;
         if (W2S(p.head_pos, vm, screen_pos)) {
             float dx = screen_pos.x - screen_center.x;
@@ -88,36 +88,39 @@ void RunAimbot() {
 
 
 extern "C" void CheatLoop(PVOID sc) {
-  UNREFERENCED_PARAMETER(sc);
-  DbgPrint("[+] Cheat loop started\n");
-  int plistDelay = 0;
-  while (TRUE) {
-	  if (g_Unload){
-      while (true) {
-		  Sleep(100000000);
-	  }
-	}
-    if (!cs2) {
-      InitProcessAccess();
-      Sleep(10);
-    } else {
-      if (!g_client_base) {
-        g_client_base = GetModuleBase(cs2, L"client.dll");
-        if (g_client_base)
-          DbgPrint("[+] client.dll found: 0x%llX\n", g_client_base);
-        Sleep(10);
-      } else {
-        entities::UpdateEntities();
-        if (plistDelay <= 0) {
-          entities::UpdatePlist();
-          plistDelay = 300;
-        } else {
-          --plistDelay;
+    UNREFERENCED_PARAMETER(sc);
+    DbgPrint("[+] Cheat loop started\n");
+    int plistDelay = 0;
+    while (TRUE) {
+        if (g_Unload) {
+            while (true) {
+                Sleep(100000000);
+            }
         }
-        if(g_Aim)
-         RunAimbot();
-         Sleep(1);
-      }
+        if (!cs2) {
+            InitProcessAccess();
+            Sleep(10);
+        }
+        else {
+            if (!g_client_base) {
+                g_client_base = GetModuleBase(cs2, L"client.dll");
+                if (g_client_base)
+                    DbgPrint("[+] client.dll found: 0x%llX\n", g_client_base);
+                Sleep(10);
+            }
+            else {
+                entities::UpdateEntities();
+                if (plistDelay <= 0) {
+                    entities::UpdatePlist();
+                    plistDelay = 300;
+                }
+                else {
+                    --plistDelay;
+                }
+                if (g_Aim)
+                    RunAimbot();
+                Sleep(1);
+            }
+        }
     }
-  }
 }
